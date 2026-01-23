@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { userService } from '../services/api.service';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import '../styles/ProfilePage.css';

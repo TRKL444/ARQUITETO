@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import '../styles/AnalyticsPage.css';
 
 const AnalyticsPage = () => {
-  const { user } = useAuth();
   const [analyticsData, setAnalyticsData] = useState({
     attributeGrowth: [],
     productivityByHour: [],

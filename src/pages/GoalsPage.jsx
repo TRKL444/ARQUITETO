@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { goalService } from '../services/api.service';
 import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import '../styles/GoalsPage.css';

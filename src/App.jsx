@@ -11,6 +11,7 @@ import GoalsPage from './pages/GoalsPage';
 import ProfilePage from './pages/ProfilePage';
 import SettingsPage from './pages/SettingsPage';
 import AnalyticsPage from './pages/AnalyticsPage';
+import LandingPage from './pages/LandingPage';
 
 // Styles
 import './styles/App.css';
@@ -23,6 +24,7 @@ function App() {
           {/* Rotas públicas */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<LoginPage isRegister={true} />} />
+          <Route path="/landing" element={<LandingPage />} />
           
           {/* Rotas privadas */}
           <Route
@@ -75,8 +77,8 @@ function App() {
           />
 
           {/* Rota padrão */}
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/" element={<Navigate to="/landing" replace />} />
+          <Route path="*" element={<Navigate to="/landing" replace />} />
         </Routes>
       </Router>
     </AuthProvider>
