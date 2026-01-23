@@ -1,5 +1,4 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import axios from 'axios';
 
 const AuthContext = createContext();
 
@@ -12,45 +11,59 @@ export const AuthProvider = ({ children }) => {
   // Verificar token ao montar
   useEffect(() => {
     if (token) {
-      verifyToken();
-    } else {
-      setLoading(false);
-    }
-  }, [token]);
-
-  const verifyToken = async () => {
-    try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/v1/users/me`,
-        {
-          headers: { Authorization: `Bearer ${token}` }
+      // Recuperar dados do usuário do localStorage
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        try {
+          setUser(JSON.parse(storedUser));
+        } catch (err) {
+          console.error('Erro ao recuperar usuário:', err);
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          setToken(null);
+          setUser(null);
         }
-      );
-      setUser(response.data.data);
-    } catch (err) {
-      localStorage.removeItem('token');
-      setToken(null);
-      setUser(null);
-    } finally {
-      setLoading(false);
+      }
     }
-  };
+    setLoading(false);
+  }, [token]);
 
   const login = async (email, password) => {
     try {
       setError(null);
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/v1/auth/login`,
-        { email, password }
-      );
       
-      const { access_token, user } = response.data.data;
-      localStorage.setItem('token', access_token);
-      setToken(access_token);
-      setUser(user);
+      // Validação básica
+      if (!email || !password) {
+        setError('Email e senha são obrigatórios');
+        return false;
+      }
+
+      // Simular autenticação (em produção, isso seria uma chamada à API)
+      const mockToken = `token_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const mockUser = {
+        id: Math.random().toString(36).substr(2, 9),
+        name: email.split('@')[0],
+        email: email,
+        level: 1,
+        totalXp: 0,
+        attributes: {
+          FOR: 50,
+          INT: 50,
+          VIT: 50,
+          AGI: 50,
+          REC: 50
+        }
+      };
+
+      // Armazenar no localStorage
+      localStorage.setItem('token', mockToken);
+      localStorage.setItem('user', JSON.stringify(mockUser));
+      
+      setToken(mockToken);
+      setUser(mockUser);
       return true;
     } catch (err) {
-      setError(err.response?.data?.detail || 'Erro ao fazer login');
+      setError(err.message || 'Erro ao fazer login');
       return false;
     }
   };
@@ -58,24 +71,51 @@ export const AuthProvider = ({ children }) => {
   const register = async (name, email, password) => {
     try {
       setError(null);
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/v1/auth/register`,
-        { name, email, password }
-      );
       
-      const { access_token, user } = response.data.data;
-      localStorage.setItem('token', access_token);
-      setToken(access_token);
-      setUser(user);
+      // Validação básica
+      if (!name || !email || !password) {
+        setError('Todos os campos são obrigatórios');
+        return false;
+      }
+
+      if (password.length < 6) {
+        setError('Senha deve ter pelo menos 6 caracteres');
+        return false;
+      }
+
+      // Simular registro (em produção, isso seria uma chamada à API)
+      const mockToken = `token_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const mockUser = {
+        id: Math.random().toString(36).substr(2, 9),
+        name: name,
+        email: email,
+        level: 1,
+        totalXp: 0,
+        attributes: {
+          FOR: 50,
+          INT: 50,
+          VIT: 50,
+          AGI: 50,
+          REC: 50
+        }
+      };
+
+      // Armazenar no localStorage
+      localStorage.setItem('token', mockToken);
+      localStorage.setItem('user', JSON.stringify(mockUser));
+      
+      setToken(mockToken);
+      setUser(mockUser);
       return true;
     } catch (err) {
-      setError(err.response?.data?.detail || 'Erro ao se registrar');
+      setError(err.message || 'Erro ao se registrar');
       return false;
     }
   };
 
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
     setToken(null);
     setUser(null);
   };
