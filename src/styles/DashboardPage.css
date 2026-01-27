@@ -38,7 +38,7 @@
 }
 
 .stat-card {
-  background: white;
+  background: var(--light-bg);
   padding: 1.5rem;
   border-radius: 0.75rem;
   border: 1px solid var(--border-color);
@@ -84,7 +84,7 @@
 }
 
 .dashboard-section {
-  background: white;
+  background: var(--light-bg);
   padding: 1.5rem;
   border-radius: 0.75rem;
   border: 1px solid var(--border-color);

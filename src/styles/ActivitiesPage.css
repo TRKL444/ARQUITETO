@@ -32,7 +32,7 @@
 }
 
 .activity-form {
-  background: white;
+  background: var(--light-bg);
   padding: 1.5rem;
   border-radius: 0.75rem;
   border: 1px solid var(--border-color);
@@ -53,7 +53,7 @@
 }
 
 .activity-card {
-  background: white;
+  background: var(--light-bg);
   padding: 1.5rem;
   border-radius: 0.75rem;
   border-left: 4px solid var(--primary-color);

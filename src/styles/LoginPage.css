@@ -9,7 +9,7 @@
 }
 
 .login-card {
-  background: white;
+  background: var(--light-bg);
   border-radius: 1rem;
   padding: 2rem;
   width: 100%;

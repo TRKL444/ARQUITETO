@@ -1,6 +1,6 @@
 /* Header */
 .header {
-  background: white;
+  background: var(--light-bg);
   border-bottom: 1px solid var(--border-color);
   padding: 1rem 0;
   position: sticky;
@@ -74,7 +74,7 @@
   position: absolute;
   top: 100%;
   right: 0;
-  background: white;
+  background: var(--light-bg);
   border: 1px solid var(--border-color);
   border-radius: 0.5rem;
   margin-top: 0.5rem;
