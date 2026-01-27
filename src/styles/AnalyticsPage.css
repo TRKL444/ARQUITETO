@@ -13,8 +13,11 @@
 
 .analytics-content {
   flex: 1;
+  margin-left: 5rem; /* 80px sidebar width */
   padding: 2rem;
   overflow-y: auto;
+  max-width: calc(100vw - 5rem); /* Adjust for sidebar */
+  width: 100%;
 }
 
 .analytics-header {
