@@ -18,7 +18,6 @@ const LoginPage = ({ isRegister = false }) => {
     confirmPassword: ''
   });
 
-  const accentColor = isRegisterMode ? 'purple' : 'cyan';
   const accentHex = isRegisterMode ? '#a855f7' : '#06b6d4';
 
   const handleInputChange = (e) => {
@@ -95,7 +94,7 @@ const LoginPage = ({ isRegister = false }) => {
               className="mb-4"
             >
               <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-slate-800 flex items-center justify-center">
-                <User className={`w-8 h-8 text-${accentColor}-400`} />
+                <User className={`w-8 h-8 ${isRegisterMode ? 'text-purple-400' : 'text-cyan-400'}`} />
               </div>
             </motion.div>
             <motion.h1
@@ -134,14 +133,14 @@ const LoginPage = ({ isRegister = false }) => {
                       NOME COMPLETO
                     </label>
                     <div className="relative">
-                      <User className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-${accentColor}-400`} />
+                      <User className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${isRegisterMode ? 'text-purple-400' : 'text-cyan-400'}`} />
                       <input
                         type="text"
                         name="name"
                         value={formData.name}
                         onChange={handleInputChange}
                         placeholder="Seu nome completo"
-                        className={`w-full bg-slate-950 border border-slate-800 rounded-lg py-3 pl-10 pr-4 text-white placeholder-slate-700 focus:outline-none focus:border-${accentColor}-400 focus:shadow-lg transition-all duration-300`}
+                        className={`w-full bg-slate-950 border border-slate-800 rounded-lg py-3 pl-10 pr-4 text-white placeholder-slate-700 focus:outline-none ${isRegisterMode ? 'focus:border-purple-400' : 'focus:border-cyan-400'} focus:shadow-lg transition-all duration-300`}
                         style={{
                           boxShadow: `0 0 0 0 ${accentHex}40`,
                         }}
@@ -158,14 +157,14 @@ const LoginPage = ({ isRegister = false }) => {
                 E-MAIL
               </label>
               <div className="relative">
-                <Mail className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-${accentColor}-400`} />
+                <Mail className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${isRegisterMode ? 'text-purple-400' : 'text-cyan-400'}`} />
                 <input
                   type="email"
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
                   placeholder="seu@email.com"
-                  className={`w-full bg-slate-950 border border-slate-800 rounded-lg py-3 pl-10 pr-4 text-white placeholder-slate-700 focus:outline-none focus:border-${accentColor}-400 focus:shadow-lg transition-all duration-300`}
+                  className={`w-full bg-slate-950 border border-slate-800 rounded-lg py-3 pl-10 pr-4 text-white placeholder-slate-700 focus:outline-none ${isRegisterMode ? 'focus:border-purple-400' : 'focus:border-cyan-400'} focus:shadow-lg transition-all duration-300`}
                   style={{
                     boxShadow: `0 0 0 0 ${accentHex}40`,
                   }}
@@ -179,14 +178,14 @@ const LoginPage = ({ isRegister = false }) => {
                 SENHA
               </label>
               <div className="relative">
-                <Lock className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-${accentColor}-400`} />
+                <Lock className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${isRegisterMode ? 'text-purple-400' : 'text-cyan-400'}`} />
                 <input
                   type="password"
                   name="password"
                   value={formData.password}
                   onChange={handleInputChange}
                   placeholder="Sua senha"
-                  className={`w-full bg-slate-950 border border-slate-800 rounded-lg py-3 pl-10 pr-4 text-white placeholder-slate-700 focus:outline-none focus:border-${accentColor}-400 focus:shadow-lg transition-all duration-300`}
+                  className={`w-full bg-slate-950 border border-slate-800 rounded-lg py-3 pl-10 pr-4 text-white placeholder-slate-700 focus:outline-none ${isRegisterMode ? 'focus:border-purple-400' : 'focus:border-cyan-400'} focus:shadow-lg transition-all duration-300`}
                   style={{
                     boxShadow: `0 0 0 0 ${accentHex}40`,
                   }}
@@ -209,14 +208,14 @@ const LoginPage = ({ isRegister = false }) => {
                       CONFIRMAR SENHA
                     </label>
                     <div className="relative">
-                      <Lock className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-${accentColor}-400`} />
+                      <Lock className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${isRegisterMode ? 'text-purple-400' : 'text-cyan-400'}`} />
                       <input
                         type="password"
                         name="confirmPassword"
                         value={formData.confirmPassword}
                         onChange={handleInputChange}
                         placeholder="Confirme sua senha"
-                        className={`w-full bg-slate-950 border border-slate-800 rounded-lg py-3 pl-10 pr-4 text-white placeholder-slate-700 focus:outline-none focus:border-${accentColor}-400 focus:shadow-lg transition-all duration-300`}
+                        className={`w-full bg-slate-950 border border-slate-800 rounded-lg py-3 pl-10 pr-4 text-white placeholder-slate-700 focus:outline-none ${isRegisterMode ? 'focus:border-purple-400' : 'focus:border-cyan-400'} focus:shadow-lg transition-all duration-300`}
                         style={{
                           boxShadow: `0 0 0 0 ${accentHex}40`,
                         }}
@@ -281,7 +280,7 @@ const LoginPage = ({ isRegister = false }) => {
               {isRegisterMode ? 'Já é um jogador?' : 'Ainda não é um jogador?'}
               <button
                 onClick={toggleMode}
-                className={`ml-1 font-semibold hover:text-${accentColor}-400 transition-colors`}
+                className={`ml-1 font-semibold ${isRegisterMode ? 'hover:text-purple-400' : 'hover:text-cyan-400'} transition-colors`}
                 style={{ color: accentHex }}
               >
                 {isRegisterMode ? 'Acesse aqui' : 'Crie seu perfil'}

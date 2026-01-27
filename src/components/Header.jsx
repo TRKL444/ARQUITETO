@@ -1,48 +1,31 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import '../styles/Header.css';
 
 const Header = () => {
-  const navigate = useNavigate();
   const { user, logout } = useAuth();
-  const [showUserMenu, setShowUserMenu] = React.useState(false);
+  const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate('/');
   };
 
   return (
-    <header className="header">
-      <div className="header-container">
-        <div className="header-brand">
-          <h1 className="header-title">🏗️ ARCHITECT</h1>
+    <header className="bg-slate-900 border-b border-slate-800 px-6 py-4">
+      <div className="flex justify-between items-center">
+        <div className="flex items-center space-x-4">
+          <h1 className="text-xl font-bold text-white">ARCHITECT</h1>
+          <span className="text-slate-400">Sistema de Evolução Pessoal</span>
         </div>
-
-        <div className="header-user">
-          <div className="user-info">
-            <span className="user-name">{user?.name}</span>
-          </div>
+        <div className="flex items-center space-x-4">
+          <span className="text-slate-300">Olá, {user?.name || 'Jogador'}</span>
           <button
-            className="user-menu-button"
-            onClick={() => setShowUserMenu(!showUserMenu)}
+            onClick={handleLogout}
+            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded transition-colors"
           >
-            <div className="user-avatar">
-              {user?.name?.charAt(0)?.toUpperCase()}
-            </div>
+            Sair
           </button>
-
-          {showUserMenu && (
-            <div className="user-menu">
-              <a href="/profile">👤 Perfil</a>
-              <a href="/settings">⚙️ Configurações</a>
-              <hr />
-              <button onClick={handleLogout} className="logout-button">
-                🚪 Sair
-              </button>
-            </div>
-          )}
         </div>
       </div>
     </header>

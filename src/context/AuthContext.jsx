@@ -10,7 +10,28 @@ export const AuthProvider = ({ children }) => {
 
   // Verificar token ao montar
   useEffect(() => {
-    if (token) {
+    // Para testes: simular usuário logado automaticamente
+    if (!token) {
+      const mockToken = `test_token_${Date.now()}`;
+      const mockUser = {
+        id: 'test_user',
+        name: 'Test User',
+        email: 'test@example.com',
+        level: 1,
+        totalXp: 1250,
+        attributes: {
+          FOR: 65,
+          INT: 85,
+          VIT: 70,
+          AGI: 60,
+          SOR: 75
+        }
+      };
+      localStorage.setItem('token', mockToken);
+      localStorage.setItem('user', JSON.stringify(mockUser));
+      setToken(mockToken);
+      setUser(mockUser);
+    } else {
       // Recuperar dados do usuário do localStorage
       const storedUser = localStorage.getItem('user');
       if (storedUser) {
