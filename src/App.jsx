@@ -11,7 +11,9 @@ import GoalsPage from './pages/GoalsPage';
 import ProfilePage from './pages/ProfilePage';
 import SettingsPage from './pages/SettingsPage';
 import AnalyticsPage from './pages/AnalyticsPage';
-import LandingPage from './pages/LandingPage';
+import HomePage from './pages/HomePage';
+import DocumentationPage from './pages/DocumentationPage';
+import AboutPage from './pages/AboutPage';
 
 // Styles
 import './styles/App.css';
@@ -22,9 +24,12 @@ function App() {
       <Router>
         <Routes>
           {/* Rotas públicas */}
+          <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<LoginPage isRegister={true} />} />
-          <Route path="/landing" element={<LandingPage />} />
+          <Route path="/documentation" element={<DocumentationPage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/landing" element={<DocumentationPage />} />
           
           {/* Rotas privadas */}
           <Route
@@ -77,8 +82,7 @@ function App() {
           />
 
           {/* Rota padrão */}
-          <Route path="/" element={<Navigate to="/landing" replace />} />
-          <Route path="*" element={<Navigate to="/landing" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
     </AuthProvider>
