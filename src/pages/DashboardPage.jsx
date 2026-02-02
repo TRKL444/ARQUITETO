@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Radar } from 'react-chartjs-2';
 import {
@@ -30,54 +30,40 @@ ChartJS.register(
 );
 
 const DashboardPage = () => {
-  // eslint-disable-next-line no-unused-vars
-  const { user } = useAuth();
-  const [xp, setXp] = useState(1250);
+  const { user } = useAuth(); // Agora pegamos o user real do contexto!
+  
+  // Estado local para missões (futuramente virá da tabela 'goals' ou 'activities')
   const [missions, setMissions] = useState([
     {
       id: 1,
-      title: 'Completar relatório semanal',
-      tag: 'INTEL',
-      xpReward: 150,
+      title: 'Completar configuração inicial',
+      tag: 'SYS',
+      xpReward: 500,
       completed: false,
       category: 'work'
-    },
-    {
-      id: 2,
-      title: 'Treino de musculação',
-      tag: 'FORÇA',
-      xpReward: 100,
-      completed: false,
-      category: 'health'
-    },
-    {
-      id: 3,
-      title: 'Meditar por 20 minutos',
-      tag: 'VITAL',
-      xpReward: 80,
-      completed: true,
-      category: 'personal'
-    },
-    {
-      id: 4,
-      title: 'Revisar orçamento mensal',
-      tag: 'SORTE',
-      xpReward: 120,
-      completed: false,
-      category: 'finance'
     }
   ]);
 
-  const attributes = {
-    labels: ['FOR', 'INT', 'VIT', 'AGI', 'SOR'],
+  // Se o user não tiver atributos carregados ainda, usamos valores padrão para não quebrar o gráfico
+  const userAttributes = user?.attributes || { FOR: 50, INT: 50, VIT: 50, AGI: 50, REC: 50 };
+
+  const attributesData = {
+    labels: ['FOR', 'INT', 'VIT', 'AGI', 'REC'],
     datasets: [{
-      label: 'Atributos',
-      data: [65, 85, 70, 60, 75],
+      label: 'Seus Atributos',
+      // Mapeamos os valores reais do banco de dados
+      data: [
+        userAttributes.FOR, 
+        userAttributes.INT, 
+        userAttributes.VIT, 
+        userAttributes.AGI, 
+        userAttributes.REC
+      ],
       fill: true,
-      backgroundColor: 'rgba(34, 211, 238, 0.1)',
-      borderColor: 'rgba(34, 211, 238, 0.8)',
+      backgroundColor: 'rgba(34, 211, 238, 0.2)', // Ciano translúcido
+      borderColor: 'rgba(34, 211, 238, 1)',      // Ciano sólido
       borderWidth: 2,
-      pointBackgroundColor: 'rgba(168, 85, 247, 1)',
+      pointBackgroundColor: 'rgba(168, 85, 247, 1)', // Roxo
       pointBorderColor: '#fff',
       pointHoverBackgroundColor: '#fff',
       pointHoverBorderColor: 'rgba(168, 85, 247, 1)',
@@ -104,20 +90,23 @@ const DashboardPage = () => {
           color: 'rgba(148, 163, 184, 0.8)',
           font: {
             size: 12,
-            family: 'JetBrains Mono',
+            family: 'monospace', // Fonte mono para combinar com o tema
           },
         },
         ticks: {
-          display: false,
+          display: false, // Esconde os números do eixo para ficar mais limpo
+          backdropColor: 'transparent',
         },
+        suggestedMin: 0,
+        suggestedMax: 100, // Escala fixa para dar sensação de progresso real
       },
     },
   };
 
+  // Função mock para completar missão (apenas visual por enquanto)
   const completeMission = (missionId) => {
     setMissions(prev => prev.map(mission => {
       if (mission.id === missionId && !mission.completed) {
-        setXp(prevXp => prevXp + mission.xpReward);
         return { ...mission, completed: true };
       }
       return mission;
@@ -138,126 +127,137 @@ const DashboardPage = () => {
               transition={{ duration: 0.6 }}
               className="mb-8"
             >
-              <h1 className="text-3xl font-bold text-white mb-2 font-mono">
-                BEM-VINDO AO ARCHITECT
+              <h1 className="text-3xl font-bold text-white mb-2 font-mono uppercase">
+                Olá, {user?.name || 'Jogador'}
               </h1>
-              <p className="text-slate-400 font-mono">
-                Sistema de produtividade gamificado - Rank C
-              </p>
+              <div className="flex items-center space-x-4">
+                <span className="bg-purple-600/20 text-purple-400 border border-purple-500/50 px-3 py-1 rounded font-mono text-sm">
+                  NÍVEL {user?.level || 1}
+                </span>
+                <span className="text-slate-400 font-mono text-sm">
+                  XP ATUAL: {user?.current_xp || 0} / {user?.next_level_xp || 1000}
+                </span>
+              </div>
+              
+              {/* Barra de XP */}
+              <div className="w-full h-2 bg-slate-800 rounded-full mt-4 overflow-hidden border border-slate-700">
+                <motion.div 
+                  initial={{ width: 0 }}
+                  animate={{ width: `${Math.min(((user?.current_xp || 0) / (user?.next_level_xp || 1000)) * 100, 100)}%` }}
+                  transition={{ duration: 1, ease: "easeOut" }}
+                  className="h-full bg-gradient-to-r from-cyan-500 to-purple-600"
+                />
+              </div>
             </motion.div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Radar Chart */}
+              {/* Radar Chart - AGORA REAL */}
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
-                className="lg:col-span-1 bg-slate-900/40 backdrop-blur-xl border border-slate-800/50 rounded-2xl p-6"
+                className="lg:col-span-1 bg-slate-900/40 backdrop-blur-xl border border-slate-800/50 rounded-2xl p-6 flex flex-col"
               >
-                <h3 className="text-lg font-bold text-white mb-4 font-mono">ATRIBUTOS</h3>
-                <div className="h-64">
-                  <Radar data={attributes} options={radarOptions} />
+                <h3 className="text-lg font-bold text-white mb-4 font-mono border-b border-slate-800 pb-2">
+                  STATUS
+                </h3>
+                <div className="flex-1 min-h-[300px] relative">
+                  <Radar data={attributesData} options={radarOptions} />
                 </div>
               </motion.div>
 
-              {/* Missions */}
+              {/* Missions - Ainda Mock (Próximo passo: conectar ao banco) */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.4 }}
                 className="lg:col-span-2 bg-slate-900/40 backdrop-blur-xl border border-slate-800/50 rounded-2xl p-6"
               >
-                <h3 className="text-lg font-bold text-white mb-4 font-mono flex items-center space-x-2">
+                <h3 className="text-lg font-bold text-white mb-4 font-mono flex items-center space-x-2 border-b border-slate-800 pb-2">
                   <CheckSquare className="w-5 h-5 text-cyan-400" />
-                  <span>MISSÕES ATIVAS</span>
+                  <span>MISSÕES DIÁRIAS</span>
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {missions.slice(0, 4).map((mission) => (
-                    <motion.div
+                <div className="grid grid-cols-1 gap-3">
+                  {missions.map((mission) => (
+                    <div
                       key={mission.id}
-                      initial={{ opacity: 1 }}
-                      exit={{ opacity: 0.5, scale: 0.95 }}
-                      className={`p-4 rounded-lg border transition-all duration-300 cursor-pointer ${
+                      className={`p-4 rounded-lg border transition-all duration-300 flex items-center justify-between ${
                         mission.completed
-                          ? 'bg-slate-800/50 border-slate-700/50 opacity-50'
-                          : 'bg-slate-800/30 border-slate-700/50 hover:border-cyan-400/50 hover:bg-slate-800/50'
+                          ? 'bg-slate-800/30 border-slate-800 opacity-60'
+                          : 'bg-slate-800/50 border-slate-700 hover:border-cyan-500/50'
                       }`}
-                      onClick={() => !mission.completed && completeMission(mission.id)}
                     >
-                      <div className="flex items-center space-x-3">
-                        <motion.div
-                          whileHover={{ scale: 1.1 }}
-                          className={`w-5 h-5 border-2 rounded flex items-center justify-center transition-all ${
+                      <div className="flex items-center space-x-4">
+                        <button
+                          onClick={() => completeMission(mission.id)}
+                          className={`w-6 h-6 rounded border flex items-center justify-center transition-colors ${
                             mission.completed
-                              ? 'bg-cyan-400 border-cyan-400'
-                              : 'border-slate-600 hover:border-cyan-400'
+                              ? 'bg-cyan-500 border-cyan-500 text-black'
+                              : 'border-slate-500 hover:border-cyan-400'
                           }`}
                         >
-                          {mission.completed && <CheckSquare className="w-3 h-3 text-slate-900" />}
-                        </motion.div>
-                        <div className="flex-1">
-                          <h4 className={`font-semibold text-sm ${mission.completed ? 'line-through text-slate-500' : 'text-white'}`}>
+                          {mission.completed && <CheckSquare size={14} />}
+                        </button>
+                        <div>
+                          <p className={`font-medium ${mission.completed ? 'line-through text-slate-500' : 'text-slate-200'}`}>
                             {mission.title}
-                          </h4>
-                          <div className="flex items-center justify-between mt-1">
-                            <span className={`text-xs px-2 py-1 rounded font-mono ${
-                              mission.tag === 'INTEL' ? 'bg-blue-500/20 text-blue-400' :
-                              mission.tag === 'FORÇA' ? 'bg-red-500/20 text-red-400' :
-                              mission.tag === 'VITAL' ? 'bg-green-500/20 text-green-400' :
-                              'bg-purple-500/20 text-purple-400'
-                            }`}>
-                              {mission.tag}
-                            </span>
-                            <span className="text-cyan-400 font-mono text-sm">+{mission.xpReward} XP</span>
-                          </div>
+                          </p>
+                          <span className="text-xs font-mono text-purple-400 bg-purple-400/10 px-2 py-0.5 rounded">
+                            {mission.tag}
+                          </span>
                         </div>
                       </div>
-                    </motion.div>
+                      <div className="flex items-center space-x-2 text-cyan-400 font-mono text-sm">
+                        <Zap size={14} />
+                        <span>+{mission.xpReward} XP</span>
+                      </div>
+                    </div>
                   ))}
+                  
+                  {missions.length === 0 && (
+                    <div className="text-center py-8 text-slate-500">
+                      Nenhuma missão ativa. Descanse, soldado.
+                    </div>
+                  )}
                 </div>
               </motion.div>
             </div>
 
-            {/* Stats Row */}
+            {/* Quick Stats Row */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.6 }}
               className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4"
             >
-              <div className="bg-slate-900/40 backdrop-blur-xl border border-slate-800/50 rounded-2xl p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-slate-400 text-sm font-mono">Missões Hoje</p>
-                    <p className="text-cyan-400 font-bold text-xl">{missions.filter(m => m.completed).length}/{missions.length}</p>
-                  </div>
-                  <CheckSquare className="w-8 h-8 text-cyan-400/50" />
+              <div className="bg-slate-900/40 border border-slate-800/50 rounded-xl p-4 flex items-center justify-between">
+                <div>
+                  <p className="text-slate-500 text-xs font-mono uppercase">Total XP</p>
+                  <p className="text-2xl font-bold text-white">{user?.current_xp || 0}</p>
                 </div>
+                <Zap className="text-yellow-500" />
+              </div>
+              
+              <div className="bg-slate-900/40 border border-slate-800/50 rounded-xl p-4 flex items-center justify-between">
+                <div>
+                  <p className="text-slate-500 text-xs font-mono uppercase">Atributo Maior</p>
+                  <p className="text-2xl font-bold text-cyan-400">
+                    {/* Lógica simples para achar o maior atributo */}
+                    {Object.entries(userAttributes).reduce((a, b) => a[1] > b[1] ? a : b)[0]}
+                  </p>
+                </div>
+                <Trophy className="text-cyan-500" />
               </div>
 
-              <div className="bg-slate-900/40 backdrop-blur-xl border border-slate-800/50 rounded-2xl p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-slate-400 text-sm font-mono">XP Ganho</p>
-                    <p className="text-purple-400 font-bold text-xl">+{missions.filter(m => m.completed).reduce((sum, m) => sum + m.xpReward, 0)}</p>
-                  </div>
-                  <Zap className="w-8 h-8 text-purple-400/50" />
+              <div className="bg-slate-900/40 border border-slate-800/50 rounded-xl p-4 flex items-center justify-between">
+                <div>
+                  <p className="text-slate-500 text-xs font-mono uppercase">Streak</p>
+                  <p className="text-2xl font-bold text-green-400">1 Dia</p>
                 </div>
-              </div>
-
-              <div className="bg-slate-900/40 backdrop-blur-xl border border-slate-800/50 rounded-2xl p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-slate-400 text-sm font-mono">Sequência</p>
-                    <p className="text-green-400 font-bold text-xl flex items-center space-x-1">
-                      <span>7</span>
-                      <Trophy className="w-4 h-4" />
-                    </p>
-                  </div>
-                  <Trophy className="w-8 h-8 text-green-400/50" />
-                </div>
+                <div className="text-green-500 font-mono text-xs border border-green-500/30 px-2 py-1 rounded">ATIVO</div>
               </div>
             </motion.div>
+
           </div>
         </main>
       </div>

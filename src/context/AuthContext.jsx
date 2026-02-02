@@ -1,90 +1,87 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import { supabase } from '../config/supabase';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Verificar token ao montar
-  useEffect(() => {
-    // Para testes: simular usuário logado automaticamente
-    if (!token) {
-      const mockToken = `test_token_${Date.now()}`;
-      const mockUser = {
-        id: 'test_user',
-        name: 'Test User',
-        email: 'test@example.com',
-        level: 1,
-        totalXp: 1250,
-        attributes: {
-          FOR: 65,
-          INT: 85,
-          VIT: 70,
-          AGI: 60,
-          SOR: 75
-        }
-      };
-      localStorage.setItem('token', mockToken);
-      localStorage.setItem('user', JSON.stringify(mockUser));
-      setToken(mockToken);
-      setUser(mockUser);
-    } else {
-      // Recuperar dados do usuário do localStorage
-      const storedUser = localStorage.getItem('user');
-      if (storedUser) {
-        try {
-          setUser(JSON.parse(storedUser));
-        } catch (err) {
-          console.error('Erro ao recuperar usuário:', err);
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-          setToken(null);
-          setUser(null);
-        }
+  // Função que busca os dados de RPG (XP, Atributos) na tabela 'profiles'
+  const fetchUserProfile = async (userId, email) => {
+    try {
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (error) {
+        console.error('Erro ao buscar perfil:', error.message);
+        return;
       }
+
+      if (profile) {
+        // Combina o e-mail da sessão com os dados do banco (XP, Nível, Atributos)
+        setUser({ email, ...profile });
+      }
+    } catch (err) {
+      console.error('Erro inesperado ao carregar perfil:', err);
     }
-    setLoading(false);
-  }, [token]);
+  };
+
+  useEffect(() => {
+    const initializeAuth = async () => {
+      setLoading(true);
+      
+      // 1. Verificar se já existe sessão ativa ao abrir o app
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      setSession(session);
+      
+      if (session?.user) {
+        await fetchUserProfile(session.user.id, session.user.email);
+      }
+      
+      setLoading(false);
+    };
+
+    initializeAuth();
+
+    // 2. Ouvinte de eventos: Login, Logout, Token Refreshed
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      setSession(session);
+      
+      if (session?.user) {
+        // Se logou, busca os dados do perfil
+        await fetchUserProfile(session.user.id, session.user.email);
+      } else {
+        // Se deslogou, limpa o estado
+        setUser(null);
+      }
+      
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const login = async (email, password) => {
     try {
       setError(null);
-      
-      // Validação básica
-      if (!email || !password) {
-        setError('Email e senha são obrigatórios');
-        return false;
-      }
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-      // Simular autenticação (em produção, isso seria uma chamada à API)
-      const mockToken = `token_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      const mockUser = {
-        id: Math.random().toString(36).substr(2, 9),
-        name: email.split('@')[0],
-        email: email,
-        level: 1,
-        totalXp: 0,
-        attributes: {
-          FOR: 50,
-          INT: 50,
-          VIT: 50,
-          AGI: 50,
-          REC: 50
-        }
-      };
-
-      // Armazenar no localStorage
-      localStorage.setItem('token', mockToken);
-      localStorage.setItem('user', JSON.stringify(mockUser));
-      
-      setToken(mockToken);
-      setUser(mockUser);
+      if (error) throw error;
       return true;
     } catch (err) {
-      setError(err.message || 'Erro ao fazer login');
+      setError(err.message === "Invalid login credentials" 
+        ? "E-mail ou senha incorretos." 
+        : "Erro ao fazer login: " + err.message);
       return false;
     }
   };
@@ -93,64 +90,43 @@ export const AuthProvider = ({ children }) => {
     try {
       setError(null);
       
-      // Validação básica
-      if (!name || !email || !password) {
-        setError('Todos os campos são obrigatórios');
-        return false;
-      }
-
-      if (password.length < 6) {
-        setError('Senha deve ter pelo menos 6 caracteres');
-        return false;
-      }
-
-      // Simular registro (em produção, isso seria uma chamada à API)
-      const mockToken = `token_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      const mockUser = {
-        id: Math.random().toString(36).substr(2, 9),
-        name: name,
-        email: email,
-        level: 1,
-        totalXp: 0,
-        attributes: {
-          FOR: 50,
-          INT: 50,
-          VIT: 50,
-          AGI: 50,
-          REC: 50
+      // Enviamos os dados iniciais no 'options.data'. 
+      // O Trigger que criamos no SQL vai pegar isso e criar a linha na tabela 'profiles'.
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            name,
+            level: 1,
+            totalXp: 0,
+            attributes: { FOR: 50, INT: 50, VIT: 50, AGI: 50, REC: 50 }
+          }
         }
-      };
+      });
 
-      // Armazenar no localStorage
-      localStorage.setItem('token', mockToken);
-      localStorage.setItem('user', JSON.stringify(mockUser));
-      
-      setToken(mockToken);
-      setUser(mockUser);
+      if (error) throw error;
       return true;
     } catch (err) {
-      setError(err.message || 'Erro ao se registrar');
+      setError(err.message);
       return false;
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    setToken(null);
+  const logout = async () => {
+    await supabase.auth.signOut();
     setUser(null);
+    setSession(null);
   };
-
-  const isAuthenticated = !!user && !!token;
 
   return (
     <AuthContext.Provider
       value={{
-        user,
-        token,
+        user, // Agora contém o objeto completo do banco de dados!
+        session,
         loading,
         error,
-        isAuthenticated,
+        isAuthenticated: !!session,
         login,
         register,
         logout,
